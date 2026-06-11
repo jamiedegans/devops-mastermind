@@ -20,6 +20,9 @@ colors = {
 }
 #dit is een dictionary die cijfers koppelt aan woorden
 
+colors_reverse = {words: number for number, words in colors.items()}
+#we zetten het omgedraait zodat woord naar cijfer kan zoeken
+
 hexiwords = list(colors.values())
 # lijst van geldige woorden voor de checken en dat ze mogen invoeren
 
@@ -29,7 +32,8 @@ password_admin = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542
 
 def check_Password(input_password):
     # hash het ingetypte wachtwoord en vergelijk met de opgeslagen hash
-    # SHA-256 zet een wachtwoord om naar een vaste reeks van letters en cijfers
+    #SHA-256 een wachtwoord om naar een vaste reeks van letters en cijfers
+    #.encode() zet tekst naar bytes en .hexdigest() maakt het leesbaar
     input_hash = hashlib.sha256(input_password.encode()).hexdigest()
     return input_hash == password_admin
 
@@ -38,10 +42,12 @@ password = input('vul je ww in: ')
 
 def generate_Code(length=4, digits=6):
     return [str(random.randint(1, digits)) for _ in range(length)]
+ # makes random codes for the lenghth of array
 
 def get_Feedback(secret, guess):
     black_Pegs = sum(s == g for s, g in zip(secret, guess))
     
+    # Count whites by subtracting black and calculating min digit frequency match
     secret_Counts = {}
     guess_Counts = {}
 
@@ -60,7 +66,7 @@ def show_Secret(mystery):
 
 def play_Mastermind():
     print("Welcome to Mastermind!")
-    print("Guess the 4-digit code. Each digit is from 1 to 6. You have 10 attempts.")
+    print("Guess the code using colors: red, blue, yellow, green, orange, purple. You have 10 attempts.")
     secret_Code = generate_Code()
     
     attempts = 10
@@ -69,20 +75,30 @@ def play_Mastermind():
         guess = ""
         valid_Guess = False
         while not valid_Guess:
-            guess = input(f"Attempt {attempt}: ").strip().lower()
-            # .lower() zorgt dat Red en red hetzelfde zijn
-            valid_Guess = len(guess) == 4 and all(c in "123456" for c in guess)
-            if not valid_Guess:
-                print("Invalid input. Enter 4 digits, each from 1 to 6.")
             
-        black, white = get_Feedback(secret_Code, guess)
+            guess = input(f"Attempt {attempt}: ").strip().lower()
+            #vraagt om input
+            
+            if guess == "hint":
+                show_Secret(secret_Code)
+                continue
+            #anders draait de code niet door want een overdreven gedrag
+           
+            valid_Guess = guess.lower() in hexiwords
+            
+            if not valid_Guess:
+                print("Invalid input. Enter a color: red, blue, yellow, green, orange, purple")
+
+        guess_as_number = colors_reverse[guess]
+        black, white = get_Feedback(secret_Code, [guess_as_number])
+        #get_Feedback werkt alleen met cijfers je moet het omdraaien zodat het werkt
         print(f"Black pegs (correct position): {black}, White pegs (wrong position): {white}")
 
-        if black == 4:
-            print(f"Congratulations! You guessed the code: {''.join(secret_Code)}")
+        if black == 1:
+            print(f"Congratulations! You guessed the color: {guess}")
             return
-
-    print(f"Sorry, you've used all attempts. The correct code was: {''.join(secret_Code)}")
+    
+    print(f"Sorry, you've used all attempts. The correct color was: {[colors[c] for c in secret_Code]}")
 
 if __name__ == "__main__":
     again = 'Y'
