@@ -10,6 +10,19 @@ import random
 import hashlib
 #import de hash
 
+colors = {
+    "1": "red",
+    "2": "blue",
+    "3": "yellow",
+    "4": "green",
+    "5": "orange",
+    "6": "purple"
+}
+#dit is een dictionary die cijfers koppelt aan woorden
+
+hexiwords = list(colors.values())
+# lijst van geldige woorden voor de checken en dat ze mogen invoeren
+
 password_admin = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
 #dit is een has van het woord password
 #voor een nieuw wachtwoord doe dit in terminaal en copy it python3 -c "import hashlib; print(hashlib.sha256('geheim123'.encode()).hexdigest())"
@@ -25,7 +38,6 @@ password = input('vul je ww in: ')
 
 def generate_Code(length=4, digits=6):
     return [str(random.randint(1, digits)) for _ in range(length)]
- # makes random codes for the lenghth of array
 
 def get_Feedback(secret, guess):
     black_Pegs = sum(s == g for s, g in zip(secret, guess))
@@ -43,7 +55,6 @@ def get_Feedback(secret, guess):
     return black_Pegs, white_Pegs
 
 def show_Secret(mystery):
-    # alleen admin met juist wachtwoord kan de code zien
     if user == "admin" and check_Password(password):
         print(mystery)
 
@@ -58,7 +69,8 @@ def play_Mastermind():
         guess = ""
         valid_Guess = False
         while not valid_Guess:
-            guess = input(f"Attempt {attempt}: ").strip()
+            guess = input(f"Attempt {attempt}: ").strip().lower()
+            # .lower() zorgt dat Red en red hetzelfde zijn
             valid_Guess = len(guess) == 4 and all(c in "123456" for c in guess)
             if not valid_Guess:
                 print("Invalid input. Enter 4 digits, each from 1 to 6.")
